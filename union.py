@@ -58,7 +58,10 @@ def lambda_handler(event, context):
             'InstanceAttributes'
             ]
         )
-        instance = instance['Item']['InstanceAttributes']
+        try:
+            instance = instance['Item']['InstanceAttributes']
+        except ConvergeError:
+            print("Instance metadata has not been populated yet.")
 
     try:
         tags = instance['Reservations'][0]['Instances'][0]['Tags']
