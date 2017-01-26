@@ -136,6 +136,8 @@ def lambda_handler(event, context):
     # Loop through the instance's tags, looking for the zone and cname tags.  If either of these tags exist, check
     # to make sure that the name is valid.  If it is and if there's a matching zone in DNS, create A and PTR records.
     for tag in tags:
+        if 'Name' in tag.get('Key',{}).lstrip():
+            private_host_name = tag.get('Value').lstrip().lower()
         if 'ZONE' in tag.get('Key',{}).lstrip().upper():
             if is_valid_hostname(tag.get('Value')):
                 if tag.get('Value').lstrip().lower() in private_hosted_zone_collection:
@@ -236,6 +238,7 @@ def lambda_handler(event, context):
     for configuration in dhcp_configurations:
         if configuration[0] in private_hosted_zone_collection:
             private_hosted_zone_name = configuration[0]
+            private_dns_name = private_host_name + '.' + private_hosted_zone_name
             print 'Private zone found %s' % private_hosted_zone_name
             # TODO need a way to prevent overlapping subdomains
             private_hosted_zone_id = get_zone_id(private_hosted_zone_name)
